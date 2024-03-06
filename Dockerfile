@@ -20,7 +20,7 @@ RUN python3.11 -m pip install --upgrade pip && \
     rm /requirements.txt
 
 COPY builder/download.py /download.py
-RUN python3 /download.py
+RUN python3.11 /download.py
 
 RUN ls models/
 # NOTE: The base image comes with multiple Python versions pre-installed.
