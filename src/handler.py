@@ -1,7 +1,7 @@
 from transformers import pipeline
 import runpod
 
-pipe = pipeline("text2text-generation", model="core42/jais-13b-chat")
+pipe = pipeline("text-generation", model="core42/jais-13b-chat")
 
 
 def handler(job):
