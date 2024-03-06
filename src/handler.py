@@ -1,8 +1,7 @@
 from transformers import pipeline
 import runpod
 
-pipe = pipeline("text-generation", model="core42/jais-13b-chat")
-
+pipe = pipeline("text-generation", model="core42/jais-13b-chat", trust_remote_code=True)
 
 def handler(job):
     job_input = job['input']
