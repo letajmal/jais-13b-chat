@@ -19,7 +19,7 @@ RUN python3.11 -m pip install --upgrade pip && \
     python3.11 -m pip install --upgrade -r /requirements.txt --no-cache-dir && \
     rm /requirements.txt
 
-COPY builder/download_model.py /download_model.py
+COPY builder/download.py /download.py
 RUN python3 /download.py
 
 RUN ls models/
