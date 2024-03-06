@@ -3,7 +3,7 @@ name: CI | Test Handler
 on:
   push:
     branches:
-      - main
+      - main1
 
   pull_request:
     branches:

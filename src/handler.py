@@ -1,18 +1,13 @@
-""" Example handler file. """
-
+from transformers import pipeline
 import runpod
 
-# If your handler runs inference on a model, load the model here.
-# You will want models to be loaded into memory before starting serverless.
+pipe = pipeline("text2text-generation", model="google/flan-t5-small")
 
 
 def handler(job):
-    """ Handler function that will be used to process jobs. """
     job_input = job['input']
-
-    name = job_input.get('name', 'World')
-
-    return f"Hello, {name}!"
+    message = job_input.get('message', 'Hi!')
+    return pipe(message)
 
 
 runpod.serverless.start({"handler": handler})
