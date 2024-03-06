@@ -9,7 +9,7 @@ def download_model(model_path, model_name):
         os.makedirs(model_path)
 
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(model_name)
+    model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True)
 
     # Save the model and tokenizer to the specified directory
     model.save_pretrained(model_path)
