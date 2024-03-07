@@ -16,7 +16,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 
 # Load the model and tokenizer from the saved directory
 tokenizer = AutoTokenizer.from_pretrained("models/")
-model = AutoModelForCausalLM.from_pretrained("models/")
+model = AutoModelForCausalLM.from_pretrained("models/", trust_remote_code=True)
 
 def handler(job):
     """Handler function that uses the loaded model for inference."""
