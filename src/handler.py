@@ -22,7 +22,7 @@ def handler(job):
     """Handler function that uses the loaded model for inference."""
     job_input = job['input']
 
-    name = job_input.get('message', 'Hi!')
+    message = job_input.get('message', 'Hi!')
 
     # Generate a response using the model
     with tokenizer.as_target_tokenizer():  # Use target tokenizer for conversation model
