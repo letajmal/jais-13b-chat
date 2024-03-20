@@ -50,62 +50,65 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 tokenizer = AutoTokenizer.from_pretrained(model_path)
 model = AutoModelForCausalLM.from_pretrained(model_path, device_map="auto", trust_remote_code=True)
 
-# def get_language(txt):
-#     VOCABS = {
-#         'en': 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
-#         'ar': 'ءآأؤإئابةتثجحخدذرزسشصضطظعغػؼؽؾؿـفقكلمنهوىيٱپژڤکگی'
-#     }
+def get_language(txt):
+    VOCABS = {
+        'en': 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+        'ar': 'ءآأؤإئابةتثجحخدذرزسشصضطظعغػؼؽؾؿـفقكلمنهوىيٱپژڤکگی'
+    }
 
-#     en_set = set(VOCABS["en"])
-#     ar_set = set(VOCABS["ar"])
+    en_set = set(VOCABS["en"])
+    ar_set = set(VOCABS["ar"])
 
-#     # percentage of non-english characters
-#     wset = set(txt)
-#     inter_en = wset & en_set
-#     inter_ar = wset & ar_set
-#     if len(inter_en) >= len(inter_ar):
-#         return "en"
-#     else:
-#         return "ar"
+    # percentage of non-english characters
+    wset = set(txt)
+    inter_en = wset & en_set
+    inter_ar = wset & ar_set
+    if len(inter_en) >= len(inter_ar):
+        return "en"
+    else:
+        return "ar"
 
 # def get_response(job,tokenizer=tokenizer,model=model):
-def handler(job,tokenizer=tokenizer,model=model):
+def handler(data,tokenizer=tokenizer,model=model):
 
-# # get inputs
-#     inputs = data.pop("inputs", data)
-#     if isinstance(inputs, str):
-#         query = inputs
-#         chat_history = []
-#     else:
-#         chat_history = inputs.pop("chat_history", [])
-#         query = inputs.get("text", "")
+# get inputs
+    inputs = data.pop("inputs", data)
+    if isinstance(inputs, str):
+        query = inputs
+        chat_history = []
+    else:
+        chat_history = inputs.pop("chat_history", [])
+        query = inputs.get("text", "")
 
-#     lang = get_language(query)
+    lang = get_language(query)
 
-#     if lang == "ar":
-#         text = self.prompt_ar.format_map({'Question': query, "Chat_history": "\n".join(chat_history)})
-#     else:
-#         text = self.prompt_eng.format_map({'Question': query, "Chat_history": "\n".join(chat_history)})
+    if lang == "ar":
+        text = self.prompt_ar.format_map({'Question': query, "Chat_history": "\n".join(chat_history)})
+    else:
+        text = self.prompt_eng.format_map({'Question': query, "Chat_history": "\n".join(chat_history)})
 
-    text = job['input']
-    text = prompt_eng.format_map({'Question':text})
-    input_ids = tokenizer(text, return_tensors="pt").input_ids
-    inputs = input_ids.to(device)
-    input_len = inputs.shape[-1]
-    generate_ids = model.generate(
-        inputs,
+    # text = job['input']
+    # text = prompt_eng.format_map({'Question':text})
+    input_ids = self.tokenizer(text, return_tensors="pt").input_ids
+    input_ids = input_ids.to(self.device)
+    input_len = input_ids.shape[-1]
+    generate_ids = self.model.generate(
+        input_ids,
         top_p=0.9,
         temperature=0.3,
-        max_length=2048-input_len,
+        max_new_tokens=2048 - input_len,
         min_length=input_len + 4,
         repetition_penalty=1.2,
         do_sample=True,
     )
-    response = tokenizer.batch_decode(
+    response = self.tokenizer.batch_decode(
         generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=True
     )[0]
-    response = response.split("### Response: [|AI|]")
-    return response
+    final_response = response.split("### Response: [|AI|]")
+    turn = [f'[|Human|] {query}', f'[|AI|] {final_response[-1]}']
+    chat_history.extend(turn)
+
+    return {"response": final_response, "chat_history": chat_history}
 
 
 # ques= "ما هي عاصمة الامارات؟"
